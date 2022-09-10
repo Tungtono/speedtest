@@ -1,6 +1,6 @@
 import https from "https-browserify";
 import { useState, useEffect } from "react";
-import stats from './stats'
+import stats from "./stats";
 
 const App = () => {
   const [city, setCity] = useState("");
@@ -40,43 +40,26 @@ const App = () => {
   };
 
   const request = (options, data = "") => {
-    let started;
-    let dnsLookup;
-    let tcpHandshake;
-    let sslHandshake;
-    let ttfb;
-    let ended;
+    const resultData = {
+      started: 0,
+      ttfb: 0,
+      ended: 0,
+      serverTiming: 0,
+    };
 
     return new Promise((resolve, reject) => {
-      started = performance.now();
+      resultData.started = performance.now();
       const req = https.request(options, (res) => {
         res.once("readable", () => {
-          ttfb = performance.now();
+          resultData.ttfb = performance.now();
         });
         res.on("data", () => {});
         res.on("end", () => {
-          ended = performance.now();
-          resolve([
-            started,
-            dnsLookup,
-            tcpHandshake,
-            sslHandshake,
-            ttfb,
-            ended,
-            parseFloat(res.headers["server-timing"].slice(22)),
-          ]);
-        });
-      });
-
-      req.on("socket", (socket) => {
-        socket.on("lookup", () => {
-          dnsLookup = performance.now();
-        });
-        socket.on("connect", () => {
-          tcpHandshake = performance.now();
-        });
-        socket.on("secureConnect", () => {
-          sslHandshake = performance.now();
+          resultData.ended = performance.now();
+          resultData.serverTiming = parseFloat(
+            res.headers["server-timing"].slice(22)
+          );
+          resolve(resultData);
         });
       });
 
@@ -122,19 +105,21 @@ const App = () => {
 
     for (let i = 0; i < 20; i += 1) {
       try {
-        const response = await download(1000)
+        const response = await download(1000);
         // TTFB - Server processing time
-        measurements.push(response[4] - response[0] - response[6]);
-      }
-      catch (err) {
-        console.log(err)
+        measurements.push(
+          response.ttfb - response.started - response.serverTiming
+        );
+      } catch (err) {
+        console.log(err);
       }
     }
 
-    return [
-      stats.median(measurements),
-      stats.jitter(measurements),
-    ];
+    return {
+      latency: stats.median(measurements),
+      jitter: stats.jitter(measurements),
+    }
+
   };
 
   const measureDownload = async (bytes, iterations) => {
@@ -142,12 +127,11 @@ const App = () => {
 
     for (let i = 0; i < iterations; i += 1) {
       try {
-        const response = await download(bytes)
-        const transferTime = response[5] - response[4];
+        const response = await download(bytes);
+        const transferTime = response.ended - response.ttfb;
         measurements.push(calculateSpeed(bytes, transferTime));
-      }
-      catch (err) {
-        console.log(err)
+      } catch (err) {
+        console.log(err);
       }
     }
 
@@ -159,12 +143,11 @@ const App = () => {
 
     for (let i = 0; i < iterations; i += 1) {
       try {
-        const response = await upload(bytes)
-        const transferTime = response[6];
+        const response = await upload(bytes);
+        const transferTime = response.serverTiming;
         measurements.push(calculateSpeed(bytes, transferTime));
-      }
-      catch (err) {
-        console.log(err)
+      } catch (err) {
+        console.log(err);
       }
     }
 
@@ -173,8 +156,8 @@ const App = () => {
 
   const speedTest = async () => {
     const ping = await measureLatency();
-    setLatency(ping[0].toFixed(2));
-    setJitter(ping[1].toFixed(2));
+    setLatency(ping.latency.toFixed(2));
+    setJitter(ping.jitter.toFixed(2));
 
     const testDown100k = await measureDownload(101000, 10);
     setSpeed100kb(stats.median(testDown100k).toFixed(2));
@@ -198,14 +181,14 @@ const App = () => {
       ...testDown25m,
       ...testDown100m,
     ];
-    setDownloadSpeed(stats.quartile(downloadTests, 0.75).toFixed(2));
+    setDownloadSpeed(stats.quartile(downloadTests, 0.9).toFixed(2));
 
     const testUp1 = await measureUpload(11000, 10);
     const testUp2 = await measureUpload(101000, 10);
     const testUp3 = await measureUpload(1001000, 10);
     const uploadTests = [...testUp1, ...testUp2, ...testUp3];
     setUploadSpeed(stats.quartile(uploadTests, 0.9).toFixed(2));
-  }
+  };
 
   useEffect(() => {
     fetchCdnCgiTrace();
