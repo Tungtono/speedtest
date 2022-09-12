@@ -434,7 +434,7 @@ const App = () => {
                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
               </svg>
             </div>
-            <p>Download tests with 100Kb size</p>
+            <p>Flyweight tests</p>
             <div className="ml-auto flex">
               <p className=" text-3xl font-semibold">{speed.down100Kb}</p>
               <p className=" text-sm">Mbps</p>
@@ -462,7 +462,7 @@ const App = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Running tests with 100kb size...
+            Running flyweight tests...
           </div>
         )}
         {progress.down1Mb ? (
@@ -478,7 +478,7 @@ const App = () => {
                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
               </svg>
             </div>
-            <p>Download tests with 1MB size</p>
+            <p>Lightweight tests</p>
             <div className="ml-auto flex">
               <p className=" text-3xl font-semibold">{speed.down1Mb}</p>
               <p className=" text-sm">Mbps</p>
@@ -506,7 +506,7 @@ const App = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Running tests with 1Mb size...
+            Running lightweight tests...
           </div>
         )}
         {progress.down10Mb ? (
@@ -522,7 +522,7 @@ const App = () => {
                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
               </svg>
             </div>
-            <p>Download tests with 10MB size</p>
+            <p>Welterweight tests</p>
             <div className="ml-auto flex">
               <p className=" text-3xl font-semibold">{speed.down10Mb}</p>
               <p className=" text-sm">Mbps</p>
@@ -550,7 +550,7 @@ const App = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Running tests with 10Mb size...
+            Running welterweight tests...
           </div>
         )}
         {progress.down25Mb ? (
@@ -566,7 +566,7 @@ const App = () => {
                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
               </svg>
             </div>
-            <p>Download tests with 25MB size</p>
+            <p>Middleweight tests</p>
             <div className="ml-auto flex">
               <p className=" text-3xl font-semibold">{speed.down25Mb}</p>
               <p className=" text-sm">Mbps</p>
@@ -594,7 +594,7 @@ const App = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Running tests with 25Mb size...
+            Running middleweight tests...
           </div>
         )}
         {progress.down100Mb ? (
@@ -610,7 +610,7 @@ const App = () => {
                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
               </svg>
             </div>
-            <p>Download tests with 100MB size</p>
+            <p>Heavyweight tests</p>
             <div className="ml-auto flex">
               <p className=" text-3xl font-semibold">{speed.down100Mb}</p>
               <p className=" text-sm">Mbps</p>
@@ -638,7 +638,7 @@ const App = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Running tests with 100Mb size...
+            Running heavyweight tests...
           </div>
         )}
         {progress.upAll ? (
