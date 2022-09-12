@@ -16,6 +16,17 @@ const App = () => {
     downSpeed: 0,
     upSpeed: 0,
   });
+  const [progress, setProgress] = useState({
+    latency: false,
+    jitter: false,
+    down100Kb: false,
+    down1Mb: false,
+    down10Mb: false,
+    down25Mb: false,
+    down100Mb: false,
+    downAll: false,
+    upAll: false,
+  });
 
   const fetchAllServerLoc = async () => {
     const response = await fetch("https://speed.cloudflare.com/locations");
@@ -108,7 +119,7 @@ const App = () => {
     for (let i = 0; i < 20; i += 1) {
       try {
         const response = await download(1000);
-        // TTFB - Server processing time
+        // Server processing time
         measurements.push(
           response.ttfb - response.started - response.serverTiming
         );
@@ -158,12 +169,24 @@ const App = () => {
   const speedTest = async () => {
     const ping = await measureLatency();
     setLatency(ping.latency.toFixed(2));
+    setProgress((prevState) => ({
+      ...prevState,
+      latency: true,
+    }));
     setJitter(ping.jitter.toFixed(2));
+    setProgress((prevState) => ({
+      ...prevState,
+      jitter: true,
+    }));
 
     const testDown100k = await measureDownload(101000, 10);
     setSpeed((prevState) => ({
       ...prevState,
       down100Kb: stats.median(testDown100k).toFixed(2),
+    }));
+    setProgress((prevState) => ({
+      ...prevState,
+      down100Kb: true,
     }));
 
     const testDown1m = await measureDownload(1001000, 8);
@@ -171,11 +194,19 @@ const App = () => {
       ...prevState,
       down1Mb: stats.median(testDown1m).toFixed(2),
     }));
+    setProgress((prevState) => ({
+      ...prevState,
+      down1Mb: true,
+    }));
 
     const testDown10m = await measureDownload(10001000, 6);
     setSpeed((prevState) => ({
       ...prevState,
       down10Mb: stats.median(testDown10m).toFixed(2),
+    }));
+    setProgress((prevState) => ({
+      ...prevState,
+      down10Mb: true,
     }));
 
     const testDown25m = await measureDownload(25001000, 4);
@@ -183,11 +214,19 @@ const App = () => {
       ...prevState,
       down25Mb: stats.median(testDown25m).toFixed(2),
     }));
+    setProgress((prevState) => ({
+      ...prevState,
+      down25Mb: true,
+    }));
 
     const testDown100m = await measureDownload(100001000, 1);
     setSpeed((prevState) => ({
       ...prevState,
       down100Mb: stats.median(testDown100m).toFixed(2),
+    }));
+    setProgress((prevState) => ({
+      ...prevState,
+      down100Mb: true,
     }));
 
     const downloadTests = [
@@ -201,6 +240,10 @@ const App = () => {
       ...prevState,
       downSpeed: stats.quartile(downloadTests, 0.9).toFixed(2),
     }));
+    setProgress((prevState) => ({
+      ...prevState,
+      downAll: true,
+    }));
 
     const testUp1 = await measureUpload(11000, 10);
     const testUp2 = await measureUpload(101000, 10);
@@ -209,6 +252,10 @@ const App = () => {
     setSpeed((prevState) => ({
       ...prevState,
       upSpeed: stats.quartile(uploadTests, 0.9).toFixed(2),
+    }));
+    setProgress((prevState) => ({
+      ...prevState,
+      upAll: true,
     }));
   };
 
@@ -219,18 +266,32 @@ const App = () => {
   }, []);
 
   return (
-    <div className="App">
+    <div className="text-center">
       <p>Your IP is: {ip}</p>
       <p>Fetching from the nearest server: {city}</p>
-      <p>Latency: {latency}ms</p>
-      <p>Jitter: {jitter}ms</p>
-      <p>100kb: {speed.down100Kb}Mbps</p>
-      <p>1Mb: {speed.down1Mb}Mbps</p>
-      <p>10Mb: {speed.down10Mb}Mbps</p>
-      <p>25Mb: {speed.down25Mb}Mbps</p>
-      <p>100Mb: {speed.down100Mb}Mbps</p>
-      <p>Overall Down Speed: {speed.downSpeed}Mbps</p>
-      <p>Overall Up Speed: {speed.upSpeed}Mbps</p>
+      <p>Latency: {progress.latency ? `${latency}ms` : `running tests`}</p>
+      <p>Jitter: {progress.jitter ? `${jitter}ms` : `running tests`}</p>
+      <p>
+        100kb: {progress.down100Kb ? `${speed.down100Kb}Mbps` : `running tests`}
+      </p>
+      <p>1Mb: {progress.down1Mb ? `${speed.down1Mb}Mbps` : `running tests`}</p>
+      <p>
+        10Mb: {progress.down10Mb ? `${speed.down10Mb}Mbps` : `running tests`}
+      </p>
+      <p>
+        25Mb: {progress.down25Mb ? `${speed.down25Mb}Mbps` : `running tests`}
+      </p>
+      <p>
+        100Mb: {progress.down100Mb ? `${speed.down100Mb}Mbps` : `running tests`}
+      </p>
+      <p>
+        Overall Down Speed:{" "}
+        {progress.downAll ? `${speed.downSpeed}Mbps` : `running tests`}
+      </p>
+      <p>
+        Overall Up Speed:{" "}
+        {progress.upAll ? `${speed.upSpeed}Mbps` : `running tests`}
+      </p>
     </div>
   );
 };
