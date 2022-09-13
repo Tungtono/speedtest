@@ -32,7 +32,6 @@ function quartile(values, percentile) {
 }
 
 function jitter(values) {
-  // Average distance between consecutive latency measurements...
    let jitters = [];
 
   for (let i = 0; i < values.length - 1; i += 1) {
@@ -42,7 +41,6 @@ function jitter(values) {
   return average(jitters);
 }
 
-// exports.average = average;
 exports.median = median;
 exports.quartile = quartile;
 exports.jitter = jitter;
