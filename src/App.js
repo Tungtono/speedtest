@@ -9,16 +9,16 @@ import parseCdnCgiTrace from "./components/parseCdnDgiTrace";
 const App = () => {
   const [city, setCity] = useState("");
   const [ip, setIp] = useState("");
-  const [latency, setLatency] = useState(0);
-  const [jitter, setJitter] = useState(0);
-  const [speed, setSpeed] = useState({
+  const [metrics, setMetrics] = useState({
+    latency: 0,
+    jitter: 0,
     down100Kb: 0,
     down1Mb: 0,
     down10Mb: 0,
     down25Mb: 0,
     down100Mb: 0,
-    downSpeed: 0,
-    upSpeed: 0,
+    downOverall: 0,
+    upOverall: 0,
   });
   const [progress, setProgress] = useState({
     latency: false,
@@ -28,12 +28,53 @@ const App = () => {
     down10Mb: false,
     down25Mb: false,
     down100Mb: false,
-    downAll: false,
-    upAll: false,
+    downOverall: false,
+    upOverall: false,
   });
+  const tests = [
+    {
+      name: "latency",
+      title: "latency",
+      description: "multiple tests to calculate round trip time (RTT)"
+    },
+    {
+      name: "jitter",
+      title: "jitter",
+      description: "average difference between consecutive latency measurements"
+    },
+    {
+      name: "down100Kb",
+      title: "flyweight",
+      description: "multiple download tests with 100Bk file size"
+    },
+    {
+      name: "down1Mb",
+      title: "lightweight",
+      description: "multiple download tests with 1Mb file size"
+    },
+    {
+      name: "down10Mb",
+      title: "welterweight",
+      description: "multiple download tests with 10Mb file size"
+    },
+    {
+      name: "down25Mb",
+      title: "middleweight",
+      description: "multiple download tests with 25Mb file size"
+    },
+    {
+      name: "down100Mb",
+      title: "heavyweight",
+      description: "multiple download tests with 100Mb file size"
+    },
+    {
+      name: "upOverall",
+      title: "upload",
+      description: "multiple upload tests with various sizes"
+    },
+  ]
 
   const getBackgroundInfo = async () => {
-
     const response = await fetch("https://www.cloudflare.com/cdn-cgi/trace");
     const rawData = await response.text();
     const data = parseCdnCgiTrace(rawData);
@@ -41,24 +82,29 @@ const App = () => {
     const allServers = await getServers();
     const myServer = allServers.find((item) => item.iata === data.colo);
     setCity(myServer.city);
-  
-  }
+  };
 
   const speedTest = async () => {
     const ping = await measureLatency();
-    setLatency(ping.latency.toFixed(2));
+    setMetrics((prevState) => ({
+      ...prevState,
+      latency: ping.latency.toFixed(2),
+    }));
     setProgress((prevState) => ({
       ...prevState,
       latency: true,
     }));
-    setJitter(ping.jitter.toFixed(2));
+    setMetrics((prevState) => ({
+      ...prevState,
+      jitter: ping.jitter.toFixed(2),
+    }));
     setProgress((prevState) => ({
       ...prevState,
       jitter: true,
     }));
 
     const testDown100k = await measureDownload(101000, 10);
-    setSpeed((prevState) => ({
+    setMetrics((prevState) => ({
       ...prevState,
       down100Kb: stats.median(testDown100k).toFixed(2),
     }));
@@ -68,7 +114,7 @@ const App = () => {
     }));
 
     const testDown1m = await measureDownload(1001000, 8);
-    setSpeed((prevState) => ({
+    setMetrics((prevState) => ({
       ...prevState,
       down1Mb: stats.median(testDown1m).toFixed(2),
     }));
@@ -78,7 +124,7 @@ const App = () => {
     }));
 
     const testDown10m = await measureDownload(10001000, 6);
-    setSpeed((prevState) => ({
+    setMetrics((prevState) => ({
       ...prevState,
       down10Mb: stats.median(testDown10m).toFixed(2),
     }));
@@ -88,7 +134,7 @@ const App = () => {
     }));
 
     const testDown25m = await measureDownload(25001000, 4);
-    setSpeed((prevState) => ({
+    setMetrics((prevState) => ({
       ...prevState,
       down25Mb: stats.median(testDown25m).toFixed(2),
     }));
@@ -98,7 +144,7 @@ const App = () => {
     }));
 
     const testDown100m = await measureDownload(100001000, 1);
-    setSpeed((prevState) => ({
+    setMetrics((prevState) => ({
       ...prevState,
       down100Mb: stats.median(testDown100m).toFixed(2),
     }));
@@ -114,39 +160,41 @@ const App = () => {
       ...testDown25m,
       ...testDown100m,
     ];
-    setSpeed((prevState) => ({
+    setMetrics((prevState) => ({
       ...prevState,
-      downSpeed: stats.quartile(downloadTests, 0.75).toFixed(2),
+      downOverall: stats.quartile(downloadTests, 0.75).toFixed(2),
     }));
     setProgress((prevState) => ({
       ...prevState,
-      downAll: true,
+      downOverall: true,
     }));
 
     const testUp1 = await measureUpload(11000, 10);
     const testUp2 = await measureUpload(101000, 10);
     const testUp3 = await measureUpload(1001000, 10);
     const uploadTests = [...testUp1, ...testUp2, ...testUp3];
-    setSpeed((prevState) => ({
+    setMetrics((prevState) => ({
       ...prevState,
-      upSpeed: stats.quartile(uploadTests, 0.9).toFixed(2),
+      upOverall: stats.quartile(uploadTests, 0.9).toFixed(2),
     }));
     setProgress((prevState) => ({
       ...prevState,
-      upAll: true,
+      upOverall: true,
     }));
   };
 
   const handleRetest = () => {
-    setSpeed({
+    setMetrics({
+      latency: 0,
+      jitter: 0,
       down100Kb: 0,
       down1Mb: 0,
       down10Mb: 0,
       down25Mb: 0,
       down100Mb: 0,
-      downSpeed: 0,
-      upSpeed: 0,
-    })
+      downOverall: 0,
+      upOverall: 0,
+    });
     setProgress({
       latency: false,
       jitter: false,
@@ -157,9 +205,9 @@ const App = () => {
       down100Mb: false,
       downAll: false,
       upAll: false,
-    })
-    speedTest()
-  }
+    });
+    speedTest();
+  };
   useEffect(() => {
     getBackgroundInfo();
     speedTest();
@@ -170,16 +218,19 @@ const App = () => {
     <div className="flex flex-col justify-center items-center">
       <div className="lg:w-2/3 w-screen mt-12 text-center">
         <h1 className="text-4xl font-bold">Your Internet speed is</h1>
-        {progress.downAll ? (
+        {progress.downOverall ? (
           <div className="flex justify-center gap-2 h-48">
             <p className="text-9xl font-bold my-auto">
-              {Math.floor(speed.downSpeed)}
+              {Math.floor(metrics.downOverall)}
             </p>
             <div className="flex flex-col justify-center items-start gap-2">
               <p className="text-3xl font-medium">
-                .{speed.downSpeed.toString().split(".")[1]}Mbps
+                .{metrics.downOverall.toString().split(".")[1]}Mbps
               </p>
-              <button onClick={() => handleRetest()} className="bg-green-600 rounded-lg flex pr-3 pl-2 py-1.5 gap-1">
+              <button
+                onClick={() => handleRetest()}
+                className="bg-green-600 rounded-lg flex pr-3 pl-2 py-1.5 gap-1"
+              >
                 <svg
                   className="m-auto"
                   width="24"
@@ -210,358 +261,56 @@ const App = () => {
         )}
       </div>
       <div className="flex justify-center flex-wrap lg:w-2/3 w-full">
-        {progress.latency ? (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="white"
-                viewBox="0 0 16 16"
-              >
-                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-              </svg>
-            </div>
-            <p>Latency</p>
-            <div className="ml-auto flex">
-              <p className=" text-3xl font-semibold">{latency}</p>
-              <p className=" text-sm">ms</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Calculating latency...
-          </div>
-        )}
-        {progress.jitter ? (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="white"
-                viewBox="0 0 16 16"
-              >
-                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-              </svg>
-            </div>
-            <p>Jitter</p>
-            <div className="ml-auto flex">
-              <p className=" text-3xl font-semibold">{jitter}</p>
-              <p className=" text-sm">ms</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Calculating jitter...
-          </div>
-        )}
-        {progress.down100Kb ? (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="white"
-                viewBox="0 0 16 16"
-              >
-                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-              </svg>
-            </div>
-            <p>Flyweight tests</p>
-            <div className="ml-auto flex">
-              <p className=" text-3xl font-semibold">{speed.down100Kb}</p>
-              <p className=" text-sm">Mbps</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Running flyweight tests...
-          </div>
-        )}
-        {progress.down1Mb ? (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="white"
-                viewBox="0 0 16 16"
-              >
-                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-              </svg>
-            </div>
-            <p>Lightweight tests</p>
-            <div className="ml-auto flex">
-              <p className=" text-3xl font-semibold">{speed.down1Mb}</p>
-              <p className=" text-sm">Mbps</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Running lightweight tests...
-          </div>
-        )}
-        {progress.down10Mb ? (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="white"
-                viewBox="0 0 16 16"
-              >
-                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-              </svg>
-            </div>
-            <p>Welterweight tests</p>
-            <div className="ml-auto flex">
-              <p className=" text-3xl font-semibold">{speed.down10Mb}</p>
-              <p className=" text-sm">Mbps</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Running welterweight tests...
-          </div>
-        )}
-        {progress.down25Mb ? (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="white"
-                viewBox="0 0 16 16"
-              >
-                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-              </svg>
-            </div>
-            <p>Middleweight tests</p>
-            <div className="ml-auto flex">
-              <p className=" text-3xl font-semibold">{speed.down25Mb}</p>
-              <p className=" text-sm">Mbps</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Running middleweight tests...
-          </div>
-        )}
-        {progress.down100Mb ? (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="white"
-                viewBox="0 0 16 16"
-              >
-                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-              </svg>
-            </div>
-            <p>Heavyweight tests</p>
-            <div className="ml-auto flex">
-              <p className=" text-3xl font-semibold">{speed.down100Mb}</p>
-              <p className=" text-sm">Mbps</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Running heavyweight tests...
-          </div>
-        )}
-        {progress.upAll ? (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="white"
-                viewBox="0 0 16 16"
-              >
-                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-              </svg>
-            </div>
-            <p>Upload speed</p>
-            <div className="ml-auto flex">
-              <p className=" text-3xl font-semibold">{speed.upSpeed}</p>
-              <p className=" text-sm">Mbps</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            Running upload tests...
-          </div>
-        )}
+        {tests.map(item => {
+            return (
+              <>
+              {progress[item.name] ? (
+              <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
+                <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="white"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
+                  </svg>
+                </div>
+                <p>{item.title} result</p>
+                <div className="ml-auto flex">
+                  <p className=" text-3xl font-semibold">{metrics[item.name]}</p>
+                  <p className=" text-sm">{(item.name === "latency" || item.name === "jitter") ? "ms" : "Mbps"}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-green-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Running {item.title} tests...
+              </div>
+            )}
+              </>
+            )
+        })}
       </div>
       <p className="text-sm">Your IP is: {ip}</p>
       <p className="text-sm">Fetching from the nearest server: {city}</p>
