@@ -337,8 +337,8 @@ const App = () => {
           );
         })}
       </div>
-      <p className="text-sm mt-2">Your IP is: {ip}</p>
-      <p className="text-sm mt-2">Fetching from the nearest server: {city}</p>
+      <p className="text-sm mt-2">Your IP is: <strong>{ip}</strong></p>
+      <p className="text-sm mt-2">Fetching from the nearest server: <strong>{city}</strong></p>
     </div>
   );
 };
