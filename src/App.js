@@ -233,8 +233,8 @@ const App = () => {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-gray-900 dark:text-white">
-      <div className="flex items-center mt-4 mb-4">
+    <div className="flex flex-col justify-center items-center h-full pt-8 pb-6 bg-white dark:bg-gray-900 dark:text-white overflow-y-auto">
+      <div className="flex items-center mb-4">
         <span className="mr-3 text-sm font-medium text-gray-900 dark:text-gray-500">
           Light
         </span>
