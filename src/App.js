@@ -3,6 +3,8 @@ import stats from "./components/stats";
 import measureDownload from "./components/measureDownload";
 import measureUpload from "./components/measureUpload";
 import measureLatency from "./components/measureLatency";
+import getServers from "./components/getServers";
+import parseCdnCgiTrace from "./components/parseCdnDgiTrace";
 
 const App = () => {
   const [city, setCity] = useState("");
@@ -30,29 +32,17 @@ const App = () => {
     upAll: false,
   });
 
-  const fetchAllServerLoc = async () => {
-    const response = await fetch("https://speed.cloudflare.com/locations");
-    const data = await response.json();
-    return data;
-  };
-  const parseCdnCgiTrace = (text) => {
-    const cdnCgiObj = {};
-    const data = text.split("\n");
-    data.forEach((item) => {
-      const pair = item.split("=");
-      cdnCgiObj[pair[0]] = pair[1];
-    });
-    return cdnCgiObj;
-  };
-  const fetchCdnCgiTrace = async () => {
+  const getBackgroundInfo = async () => {
+
     const response = await fetch("https://www.cloudflare.com/cdn-cgi/trace");
     const rawData = await response.text();
     const data = parseCdnCgiTrace(rawData);
     setIp(data.ip);
-    const allServers = await fetchAllServerLoc();
+    const allServers = await getServers();
     const myServer = allServers.find((item) => item.iata === data.colo);
     setCity(myServer.city);
-  };
+  
+  }
 
   const speedTest = async () => {
     const ping = await measureLatency();
@@ -171,7 +161,7 @@ const App = () => {
     speedTest()
   }
   useEffect(() => {
-    fetchCdnCgiTrace();
+    getBackgroundInfo();
     speedTest();
     // eslint-disable-next-line
   }, []);
