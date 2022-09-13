@@ -46,7 +46,7 @@ const App = () => {
     {
       name: "down100Kb",
       title: "flyweight",
-      description: "multiple download tests with 100Bk file size each",
+      description: "multiple download tests with 100Kb file size each",
     },
     {
       name: "down1Mb",
