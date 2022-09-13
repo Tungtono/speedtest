@@ -302,12 +302,12 @@ const App = () => {
           </div>
         )}
       </div>
-      <div className="flex justify-center flex-wrap lg:w-3/4 w-full">
+      <div className="flex justify-center flex-wrap lg:w-3/4 w-screen">
         {tests.map((item) => {
           return (
-            <div key={item.name}>
+            <div key={item.name} className="px-4 lg:w-[28rem] w-full lg:mx-2 h-24 box-border">
               {progress[item.name] ? (
-                <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-[30rem] w-full mx-4 h-24">
+                <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium">
                   <div className="flex flex-col">
                     <div className="flex justify-start items-center">
                       <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 mr-3">
@@ -339,7 +339,7 @@ const App = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-[30rem] w-full mx-4 h-24">
+                <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium">
                   <div className="flex flex-col">
                     <div className="flex justify-start items-center">
                       <svg
