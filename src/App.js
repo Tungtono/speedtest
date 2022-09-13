@@ -270,7 +270,7 @@ const App = () => {
               {progress[item.name] ? (
                 <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-[30rem] w-full mx-4 h-24">
                   <div className="flex flex-col">
-                    <div className="flex">
+                    <div className="flex justify-start items-center">
                       <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 mr-3">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -304,7 +304,7 @@ const App = () => {
               ) : (
                 <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-[30rem] w-full mx-4 h-24">
                   <div className="flex flex-col">
-                    <div className="flex">
+                    <div className="flex justify-start items-center">
                       <svg
                         className="animate-spin mr-3 h-5 w-5 text-green-600"
                         xmlns="http://www.w3.org/2000/svg"
