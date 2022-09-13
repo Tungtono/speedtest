@@ -7,6 +7,7 @@ import getServers from "./components/getServers";
 import parseCdnCgiTrace from "./components/parseCdnDgiTrace";
 
 const App = () => {
+  const [darkMode, setDarkMode] = useState(localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches))
   const [city, setCity] = useState("");
   const [ip, setIp] = useState("");
   const [metrics, setMetrics] = useState({
@@ -209,6 +210,22 @@ const App = () => {
     });
     speedTest();
   };
+
+  const darkModeToggle = () => {
+    if (darkMode) {
+      localStorage.theme = 'light'
+    } else {
+      localStorage.theme = 'dark'
+    }
+    setDarkMode(prevState => !prevState)
+  }
+
+  if (darkMode) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+
   useEffect(() => {
     getBackgroundInfo();
     speedTest();
@@ -216,7 +233,29 @@ const App = () => {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center items-center mt-12 mb-2">
+    <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-gray-900 dark:text-white">
+      <div className="flex items-center mt-4 mb-4">
+        <span className="mr-3 text-sm font-medium text-gray-900 dark:text-gray-500">
+          Light
+        </span>
+        <label
+          htmlFor="default-toggle"
+          className="inline-flex relative items-center cursor-pointer"
+        >
+          <input
+            type="checkbox"
+            value=""
+            id="default-toggle"
+            defaultChecked={darkMode}
+            className="sr-only peer"
+            onChange={() => darkModeToggle()}
+          />
+          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+        </label>
+        <span className="ml-3 text-sm font-medium text-gray-400 dark:text-white">
+          Dark
+        </span>
+      </div>
       <div className="lg:w-2/3 w-screen text-center">
         <h1 className="lg:text-4xl text-3xl font-bold">
           Your Internet speed is
@@ -253,12 +292,12 @@ const App = () => {
           </div>
         ) : (
           <div className="h-48 flex justify-center items-center">
-            <div class="px-4 font-semibold text-4xl text-green-600">
+            <div className="px-4 font-semibold text-4xl text-green-600">
               ...doing magic
             </div>
-            <div class="flex h-6 w-6">
-              <div class="animate-ping absolute h-6 w-6 rounded-full bg-green-600 opacity-75"></div>
-              <div class="relative rounded-full h-6 w-6 bg-green-600"></div>
+            <div className="flex h-6 w-6">
+              <div className="animate-ping absolute h-6 w-6 rounded-full bg-green-600 opacity-75"></div>
+              <div className="relative rounded-full h-6 w-6 bg-green-600"></div>
             </div>
           </div>
         )}
@@ -266,7 +305,7 @@ const App = () => {
       <div className="flex justify-center flex-wrap lg:w-3/4 w-full">
         {tests.map((item) => {
           return (
-            <>
+            <div key={item.name}>
               {progress[item.name] ? (
                 <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-[30rem] w-full mx-4 h-24">
                   <div className="flex flex-col">
@@ -282,9 +321,7 @@ const App = () => {
                           <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
                         </svg>
                       </div>
-                      <p className="text-sm lg:text-lg">
-                        {item.title} tests
-                      </p>
+                      <p className="text-sm lg:text-lg">{item.title} tests</p>
                     </div>
                     <div className="text-[0.65rem] mt-2 font-normal">
                       {item.description}
@@ -325,7 +362,9 @@ const App = () => {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      <p className="text-sm lg:text-lg">Running {item.title} tests...</p>
+                      <p className="text-sm lg:text-lg">
+                        Running {item.title} tests...
+                      </p>
                     </div>
                     <div className="text-[0.65rem] mt-2 font-normal">
                       {item.description}
@@ -333,12 +372,16 @@ const App = () => {
                   </div>
                 </div>
               )}
-            </>
+            </div>
           );
         })}
       </div>
-      <p className="text-sm mt-2">Your IP is: <strong>{ip}</strong></p>
-      <p className="text-sm mt-2">Fetching from the nearest server: <strong>{city}</strong></p>
+      <p className="text-sm mt-2">
+        Your IP is: <strong>{ip}</strong>
+      </p>
+      <p className="text-sm mt-2">
+        Fetching from the nearest server: <strong>{city}</strong>
+      </p>
     </div>
   );
 };
