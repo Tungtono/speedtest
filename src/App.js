@@ -35,13 +35,13 @@ const App = () => {
     {
       name: "latency",
       title: "latency",
-      description: "multiple tests to calculate round trip time (RTT) of the test packages",
+      description: "multiple tests to calculate round trip time (RTT)",
     },
     {
       name: "jitter",
       title: "jitter",
       description:
-        "the average difference between consecutive latency measurements",
+        "average difference between consecutive latency measurements",
     },
     {
       name: "down100Kb",
@@ -71,7 +71,7 @@ const App = () => {
     {
       name: "upOverall",
       title: "upload",
-      description: "multiple upload tests with various sizes from 10Kb to 1Mb",
+      description: "multiple upload tests of various sizes from 10Kb to 1Mb",
     },
   ];
 
@@ -218,14 +218,16 @@ const App = () => {
   return (
     <div className="flex flex-col justify-center items-center mt-12 mb-2">
       <div className="lg:w-2/3 w-screen text-center">
-        <h1 className="text-4xl font-bold">Your Internet speed is</h1>
+        <h1 className="lg:text-4xl text-3xl font-bold">
+          Your Internet speed is
+        </h1>
         {progress.downOverall ? (
           <div className="flex justify-center gap-2 h-48">
-            <p className="text-9xl font-bold my-auto">
+            <p className="lg:text-9xl text-8xl font-bold my-auto">
               {Math.floor(metrics.downOverall)}
             </p>
-            <div className="flex flex-col justify-center items-start gap-2">
-              <p className="text-3xl font-medium">
+            <div className="flex flex-col justify-center items-start lg:gap-2 gap-1">
+              <p className="lg:text-3xl text-2xl font-medium">
                 .{metrics.downOverall.toString().split(".")[1]}Mbps
               </p>
               <button
@@ -261,15 +263,15 @@ const App = () => {
           </div>
         )}
       </div>
-      <div className="flex justify-center flex-wrap lg:w-2/3 w-full">
+      <div className="flex justify-center flex-wrap lg:w-3/4 w-full">
         {tests.map((item) => {
           return (
             <>
               {progress[item.name] ? (
-                <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
+                <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-[30rem] w-full mx-4 h-24">
                   <div className="flex flex-col">
                     <div className="flex">
-                      <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 text-xl mr-3">
+                      <div className="flex justify-center items-center bg-green-600 rounded-full h-5 w-5 mr-3">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -280,14 +282,16 @@ const App = () => {
                           <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
                         </svg>
                       </div>
-                      <p>{item.title} result</p>
+                      <p className="text-sm lg:text-base  ">
+                        {item.title} tests
+                      </p>
                     </div>
                     <div className="text-[0.65rem] mt-2 font-normal">
                       {item.description}
                     </div>
                   </div>
                   <div className="ml-auto flex pl-4">
-                    <p className=" text-3xl font-semibold">
+                    <p className="lg:text-3xl text-2xl font-semibold">
                       {metrics[item.name]}
                     </p>
                     <p className=" text-sm">
@@ -298,7 +302,7 @@ const App = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-96 w-full mx-4 h-24">
+                <div className="flex border-t border-gray-500 items-center px-4 py-4 font-medium lg:w-[30rem] w-full mx-4 h-24">
                   <div className="flex flex-col">
                     <div className="flex">
                       <svg
