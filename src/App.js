@@ -35,43 +35,43 @@ const App = () => {
     {
       name: "latency",
       title: "latency",
-      description: "multiple tests to calculate round trip time (RTT)",
+      description: "multiple tests to calculate round trip time (RTT) of the test packages",
     },
     {
       name: "jitter",
       title: "jitter",
       description:
-        "average difference between consecutive latency measurements",
+        "the average difference between consecutive latency measurements",
     },
     {
       name: "down100Kb",
       title: "flyweight",
-      description: "multiple download tests with 100Bk file size",
+      description: "multiple download tests with 100Bk file size each",
     },
     {
       name: "down1Mb",
       title: "lightweight",
-      description: "multiple download tests with 1Mb file size",
+      description: "multiple download tests with 1Mb file size each",
     },
     {
       name: "down10Mb",
       title: "welterweight",
-      description: "multiple download tests with 10Mb file size",
+      description: "multiple download tests with 10Mb file size each",
     },
     {
       name: "down25Mb",
       title: "middleweight",
-      description: "multiple download tests with 25Mb file size",
+      description: "multiple download tests with 25Mb file size each",
     },
     {
       name: "down100Mb",
       title: "heavyweight",
-      description: "multiple download tests with 100Mb file size",
+      description: "multiple download tests with 100Mb file size each",
     },
     {
       name: "upOverall",
       title: "upload",
-      description: "multiple upload tests with various sizes",
+      description: "multiple upload tests with various sizes from 10Kb to 1Mb",
     },
   ];
 
