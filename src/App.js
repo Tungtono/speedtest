@@ -282,7 +282,7 @@ const App = () => {
                           <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
                         </svg>
                       </div>
-                      <p className="text-sm lg:text-base  ">
+                      <p className="text-sm lg:text-lg">
                         {item.title} tests
                       </p>
                     </div>
@@ -294,7 +294,7 @@ const App = () => {
                     <p className="lg:text-3xl text-2xl font-semibold">
                       {metrics[item.name]}
                     </p>
-                    <p className=" text-sm">
+                    <p className="text-sm">
                       {item.name === "latency" || item.name === "jitter"
                         ? "ms"
                         : "Mbps"}
@@ -325,7 +325,7 @@ const App = () => {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      <p>Running {item.title} tests...</p>
+                      <p className="text-sm lg:text-lg">Running {item.title} tests...</p>
                     </div>
                     <div className="text-[0.65rem] mt-2 font-normal">
                       {item.description}
