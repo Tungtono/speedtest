@@ -1,6 +1,8 @@
-import https from "https-browserify";
 import { useState, useEffect } from "react";
-import stats from "./stats";
+import stats from "./components/stats";
+import measureDownload from "./components/measureDownload";
+import measureUpload from "./components/measureUpload";
+import measureLatency from "./components/measureLatency";
 
 const App = () => {
   const [city, setCity] = useState("");
@@ -52,120 +54,6 @@ const App = () => {
     setCity(myServer.city);
   };
 
-  const request = (options, data = "") => {
-    const resultData = {
-      started: 0,
-      ttfb: 0,
-      ended: 0,
-      serverTiming: 0,
-    };
-
-    return new Promise((resolve, reject) => {
-      resultData.started = performance.now();
-      const req = https.request(options, (res) => {
-        res.once("readable", () => {
-          resultData.ttfb = performance.now();
-        });
-        res.on("data", () => {});
-        res.on("end", () => {
-          resultData.ended = performance.now();
-          resultData.serverTiming = parseFloat(
-            res.headers["server-timing"].split("=")[1]
-          );
-          resolve(resultData);
-        });
-      });
-
-      req.on("error", (error) => {
-        reject(error);
-      });
-
-      req.write(data);
-      req.end();
-    });
-  };
-
-  const download = (bytes) => {
-    const options = {
-      hostname: "speed.cloudflare.com",
-      path: `/__down?bytes=${bytes}`,
-      method: "GET",
-    };
-
-    return request(options);
-  };
-
-  const upload = (bytes) => {
-    const data = "0".repeat(bytes);
-    const options = {
-      hostname: "speed.cloudflare.com",
-      path: "/__up",
-      method: "POST",
-      headers: {
-        "Content-Length": Buffer.byteLength(data),
-      },
-    };
-
-    return request(options, data);
-  };
-
-  const calculateSpeed = (bytes, duration) => {
-    return (bytes * 8) / (duration / 1000) / 1e6;
-  };
-
-  const measureLatency = async () => {
-    const measurements = [];
-
-    for (let i = 0; i < 20; i += 1) {
-      try {
-        const response = await download(1000);
-        // Server processing time
-        measurements.push(
-          response.ttfb - response.started - response.serverTiming
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    return {
-      latency: stats.median(measurements),
-      jitter: stats.jitter(measurements),
-    };
-  };
-
-  const measureDownload = async (bytes, iterations) => {
-    const measurements = [];
-
-    for (let i = 0; i < iterations; i += 1) {
-      try {
-        const response = await download(bytes);
-        const transferTime = response.ended - response.ttfb;
-        measurements.push(calculateSpeed(bytes, transferTime));
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    return measurements;
-  };
-
-  const measureUpload = async (bytes, iterations) => {
-    const measurements = [];
-
-    for (let i = 0; i < iterations; i += 1) {
-      try {
-        const response = await upload(bytes);
-        const transferTime = response.serverTiming;
-        measurements.push(calculateSpeed(bytes, transferTime));
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    return measurements;
-  };
-
   const speedTest = async () => {
     const ping = await measureLatency();
     setLatency(ping.latency.toFixed(2));
@@ -184,7 +72,6 @@ const App = () => {
       ...prevState,
       down100Kb: stats.median(testDown100k).toFixed(2),
     }));
-    console.log(testDown100k);
     setProgress((prevState) => ({
       ...prevState,
       down100Kb: true,
@@ -686,8 +573,8 @@ const App = () => {
           </div>
         )}
       </div>
-      <p>Your IP is: {ip}</p>
-      <p>Fetching from the nearest server: {city}</p>
+      <p className="text-sm">Your IP is: {ip}</p>
+      <p className="text-sm">Fetching from the nearest server: {city}</p>
     </div>
   );
 };
