@@ -233,7 +233,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center items-center h-full pt-8 pb-6 bg-white dark:bg-gray-900 dark:text-white overflow-y-auto">
+    <div className="flex flex-col justify-center items-center lg:h-screen pt-8 pb-6 bg-white dark:bg-gray-900 dark:text-white overflow-auto">
       <div className="flex items-center mb-4">
         <span className="mr-3 text-sm font-medium text-gray-900 dark:text-gray-500">
           Light
@@ -376,12 +376,14 @@ const App = () => {
           );
         })}
       </div>
-      <p className="text-sm mt-2">
-        Your IP is: <strong>{ip}</strong>
-      </p>
-      <p className="text-sm mt-2">
-        Fetching from the nearest server: <strong>{city}</strong>
-      </p>
+      <div className="text-center text-xs mt-4 mb-2">
+        <p className="mb-2">
+          Your IP is: <strong>{ip}</strong>
+        </p>
+        <p>
+          Fetching from the nearest server: <strong>{city}</strong>
+        </p>
+      </div>
     </div>
   );
 };
