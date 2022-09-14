@@ -363,7 +363,7 @@ const App = () => {
                         ></path>
                       </svg>
                       <p className="text-sm lg:text-lg">
-                        Running {item.title} tests...
+                        running {item.title} tests...
                       </p>
                     </div>
                     <div className="text-[0.65rem] mt-2 font-normal">
